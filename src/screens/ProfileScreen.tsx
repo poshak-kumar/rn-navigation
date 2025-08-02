@@ -1,10 +1,19 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { DrawerScreenProps } from '@react-navigation/drawer';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
-const ProfileScreen = () => {
+type ProfileProps = DrawerScreenProps<RootStackParamList, 'Profile'>;
+
+const ProfileScreen = ({navigation} : ProfileProps) => {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Profile Screen</Text>
+      <Pressable onPress={() => navigation.navigate('Settings')}>
+        <Text style={{ color: 'blue', marginTop: 20 }}>
+          Go to Settings
+        </Text>
+      </Pressable>
     </View>
   );
 };
