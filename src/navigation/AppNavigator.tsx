@@ -1,7 +1,7 @@
-import { View, Text } from 'react-native'
+import { View, Text, Pressable } from 'react-native'
 import React from 'react'
-import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
+import { DrawerActions, NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator, DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList, DrawerScreenProps } from '@react-navigation/drawer';
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -27,7 +27,7 @@ const Drawer = createDrawerNavigator<RootStackParamList>();
 const HomeStack = createNativeStackNavigator<RootStackParamList>();
 const DetailsStack = createNativeStackNavigator<RootStackParamList>()
 
-// Stack navigator for Home-related screens
+// Stack navigator for Home-related screens, (Home → Details)
 const HomeStackNavigator = () => {
   return (
     <HomeStack.Navigator>
@@ -57,10 +57,58 @@ function DetailsStackNavigator({
     )
 }
 
+// 1. Create a custom drawer content component (For example, to add a close button)
+function CustomDrawerContent(props: DrawerContentComponentProps) {
+  return (
+    <DrawerContentScrollView {...props}>
+      {/* 2. Put the close button at the top */}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          padding: 16,
+        }}
+      >
+        <Pressable 
+          onPress={() => props.navigation.dispatch(DrawerActions.closeDrawer())}
+          // style callback gets { pressed }
+          style={({ pressed }) => [
+            {
+              width: 40,            // fixed square
+              height: 40,
+              borderRadius: 20,     // half of width/height → perfect circle
+              alignItems: 'center',
+              justifyContent: 'center',
+
+              // fade opacity and change bg when pressed
+              opacity: pressed ? 0.6 : 1,             
+              backgroundColor: pressed ? '#ddd' : 'transparent',
+            },
+        ]}
+        >
+          <FontAwesome6 name="xmark" size={24} iconStyle="solid" />
+        </Pressable>
+      </View>
+
+      {/* 3. Then render the actual drawer items */}
+      <DrawerItemList {...props} />
+    </DrawerContentScrollView>
+  )
+}
+
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-        <Drawer.Navigator initialRouteName='Home'>
+        <Drawer.Navigator 
+        initialRouteName='Home'
+        // 4. Tell React Navigation to use your custom drawer
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
+        screenOptions={({navigation}) => ({
+          drawerActiveBackgroundColor: '#e6f7ff',
+          drawerActiveTintColor: '#1890ff',
+          drawerInactiveTintColor: '#000',
+        })}
+        >
           <Drawer.Screen
             name="Home"
             component={HomeStackNavigator}
